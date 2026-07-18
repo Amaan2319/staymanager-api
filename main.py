@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import requests
+import asyncio
 import time
 
 app = FastAPI()
@@ -44,8 +45,13 @@ def get_dogs():
 
 @app.get("/dogs/breeds")
 def get_breeds():
-    second_request = timme.time()
+    second_request = time.time()
     print(f"second request {second_request}")
-    breeds = requests.get('https://dogapi.dog/api/v2/breeds?page[size]=10').json()
+    breeds =  requests.get('https://dogapi.dog/api/v2/breeds?page[size]=10').json()
 
     return {"message": breeds}
+
+@app.get("/async")
+async def lateFunction():
+    time.sleep(2)
+    return {"message": "this is a forced asynchronous function"}
