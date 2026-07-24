@@ -76,5 +76,6 @@ def getItems():
     return result
 
 @app.get("/items/{id}")
-def addItem(id: int):
-    return {"item_id": id}
+def addItem(id: int, q: str =None):
+    result = f"this is id: {id} and query parameter is this {q}" if q else f"this is id: {id}"
+    return {"item_id": result}
