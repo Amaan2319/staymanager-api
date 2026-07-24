@@ -1,81 +1,62 @@
-# from fastapi import FastAPI
-# from pydantic import BaseModel
-# import requests
-# import asyncio
-# import time
-
-# app = FastAPI()
-# items = [{1: "Item 1"}]
-
-# class Item(BaseModel):
-#     name: int
-#     price: int
-#     is_available: bool
-
-# class Dog(BaseModel):
-#     name: str
-#     breed: str
-#     age: int
-
-# @app.get("/")
-# def root():
-#     return {"hello": "world"}
-
-# @app.get("/items")
-# def get_items():
-#     return {"items": items}
-
-# @app.get("/item/{item_id}")
-# def get_item(item_id: int, q: str | None = None):
-#     return {"message": {item_id: q}}
-
-# @app.put("/items/{item_id}")
-# def give_item(item_id:int, item: Item):
-#     return {"message": {"id": item_id, "name": item.name, "availability": item.is_available, "price": item.price}}
-
-# @app.get("/dogs")
-# def get_dogs():
-#     request_start = time.time()
-#     print(f"first request {request_start}")
-#     result = requests.get('https://dogapi.dog/api/v1/facts?number=2').json()
-
-#     print(f"Dogs: {result}")
-
-#     return {'message': result}
-
-# @app.get("/dogs/breeds")
-# def get_breeds():
-#     second_request = time.time()
-#     print(f"second request {second_request}")
-#     breeds =  requests.get('https://dogapi.dog/api/v2/breeds?page[size]=10').json()
-
-#     return {"message": breeds}
-
-# @app.get("/async")
-# async def lateFunction():
-#     time.sleep(2)
-#     return {"message": "this is a forced asynchronous function"}
-
 from fastapi import FastAPI
 from pydantic import BaseModel
+from enum import Enum
+
 app = FastAPI()
 
+class PaymentStatus(Enum):
+    PENDING= "pending"
+    SUCCESS="success"
+    FAILED="failed"
 
-class Item(BaseModel):
+class Payment(BaseModel):
+    id: int
+    state: PaymentStatus
+    amount: float
+
+class HostelType(Enum):
+    GIRLS="girls"
+    BOYS="boys"
+    HYBRID="hybrid"
+
+class Hostel(BaseModel):
+    id: int
+    hostel_type: HostelType
     name: str
-    description: str
 
-items=[{"name": "Amaan", "description": "SD 1"}]
+class UserType(Enum):
+    ADMIN = "admin"
+    TENANT = "tenant"
+    HOSTEL = "hostel"
+
+class User(BaseModel):
+    id: int
+    fName: str
+    lName: str
+    userType: UserType
+    hostelId: int
+
+users = list()
+
 @app.get("/")
 def root():
-    return {"message": "Hello FastAPI"}
+    return {"message": "Hello World!"}
 
-@app.get("/items")
-def getItems():
-    result = list(items)
-    return result
+@app.get("/payment/{id}")
+def get_payment_status(id: int):
+    return {"payment_id": id, "status": "Success"}
 
-@app.get("/items/{id}")
-def addItem(id: int, q: str =None):
-    result = f"this is id: {id} and query parameter is this {q}" if q else f"this is id: {id}"
-    return {"item_id": result}
+@app.post("/payment/{id}")
+def update_payment(id: int,status: PaymentStatus,amount: float):
+    payment = {"id":id,"status":status,"amount":amount}
+    return payment
+
+@app.get("/users")
+def get_users():
+    return "no users currently"
+
+@app.post("/users/")
+def add_user(user: User):
+    user_dict = user.model_dump()
+    users.append(user_dict)
+    return {"message": f"User added sucessfully. User id is {user.id}"}
