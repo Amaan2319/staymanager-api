@@ -1,11 +1,26 @@
 from fastapi import APIRouter,HTTPException
 from app.schemas.user import User,users
+import time
+from functools import wraps
 
 # 1. Use APIRouter instead of FastAPI
 router = APIRouter(prefix="/user")
 
+def time_logger(func):
+    @wraps(func)
+    def wrapper(*args,**kwargs):
+        start_time = time.perf_counter()
+        
+        func(*args,**kwargs)
+        end_time = time.perf_counter()
+        
+        exec_time = end_time-start_time
+        print(f"Function {func.__name__} took {exec_time:.6f} seconds to run")
+    return wrapper
+
 # 2. Change @app to @router
 @router.get("/all")
+@time_logger
 def get_users():
     if users:
         return users
