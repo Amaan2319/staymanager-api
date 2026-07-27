@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 
 class UserType(Enum):
     ADMIN = "admin"
@@ -7,10 +7,10 @@ class UserType(Enum):
     HOSTEL = "hostel"
 
 class User(BaseModel):
-    id: int
+    id: int = Field(...,gt=0,description="ID should be greater than 0")
     fName: str
     lName: str
     userType: UserType
-    hostelId: int
+    hostelId: int = Field(...,gt=0,description="The unique ID must be greater than 0")
 
 users = list()
