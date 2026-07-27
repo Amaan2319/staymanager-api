@@ -1,5 +1,6 @@
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
+from typing import Annotated
 
 class HostelType(Enum):
     GIRLS="girls"
@@ -7,6 +8,6 @@ class HostelType(Enum):
     GENERAL="general"
 
 class Hostel(BaseModel):
-    id: int
+    id: Annotated[int,Field(gt=0,description="ID should be greater than 0")]
     name: str
     hostelType: HostelType
