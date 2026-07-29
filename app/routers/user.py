@@ -1,11 +1,18 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,Depends
+from sqlalchemy.orm import Session
 from app.schemas.user import User,users
 # import time
 # from functools import wraps
 from app.core.utils import time_logger
+# 1. Import your database session generator
+from app.core.database import get_db
+# 2. Import the SQLAlchemy Model (The Database Blueprint)
+from app.models.user import User as DBUser
+# 3. Import the Pydantic Schema (The Data Formatter)
+from app.schemas.user import User as UserSchema
 
 # 1. Use APIRouter instead of FastAPI
-router = APIRouter(prefix="/user")
+router = APIRouter(prefix="/user", tags=["Users"])
 
 # def time_logger(func):
 #     @wraps(func)
@@ -20,15 +27,18 @@ router = APIRouter(prefix="/user")
 #     return wrapper
 
 
-# 2. Change @app to @router
-@router.get("/all")
-@time_logger
-def get_users():
-    if users:
-        return users
-
-    else:
-        return {"Message": "No users"}
+@router.get("/all", response_model=list[UserSchema])
+def get_users(db: Session = Depends(get_db)):
+    # 1. Query the database: SELECT * FROM users;
+    users = db.query(DBUser).all()
+    
+    # 2. Check if the database is empty
+    if not users:
+        # Returning an empty list is standard practice for a GET ALL route when no data exists
+        return [] 
+        
+    # 3. Return the database objects
+    return users
 
 @router.post("/")
 def add_user(new_user: User):
